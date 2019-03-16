@@ -1,5 +1,17 @@
 import Long from "long"
 
+function padZeros(str, length = 2)
+{
+    if (str.length >= length)
+        return str
+    let padding = ""
+    for (let needed = 2 - str.length; needed > 0; needed--)
+    {
+        padding += "0"
+    }
+    return padding + str
+}
+
 class Bytes {
     constructor(size)
     {
@@ -16,9 +28,7 @@ class Bytes {
     {
         let values = []
         for (let val of this.data)
-        {
-            values.push(val.toString(16))
-        }
+            values.push(padZeros(val.toString(16)))
         return values.join(' ')
     }
 }
