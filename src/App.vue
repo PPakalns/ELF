@@ -1,17 +1,25 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <h1>ELF visualiser</h1>
+    <ElfFileVisualiser v-if="elf" v-bind:elf="elf" />
+    <ElfFileSelector v-model="elf" v-else />
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import ElfFileSelector from './components/ElfFileSelector.vue'
+import ElfFileVisualiser from './components/ElfFileVisualiser.vue'
 
 export default {
   name: 'app',
+  data() {
+      return {
+          elf: null,
+      }
+  },
   components: {
-    HelloWorld
+      ElfFileSelector,
+      ElfFileVisualiser,
   }
 }
 </script>
@@ -23,6 +31,6 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
+  margin-top: 20px;
 }
 </style>
