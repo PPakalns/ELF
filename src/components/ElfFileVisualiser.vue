@@ -1,8 +1,26 @@
 <template>
-    <div>
-        <span v-if="data">File size: {{ data.length }} bytes</span>
-        <ShowList v-if="data" title="ELF header" v-bind:list="elf_header">
-        </ShowList>
+    <div v-if="data">
+        <div>
+            <span>File size: {{ data.length }} bytes</span>
+            <ShowList title="ELF header" v-bind:list="elf_header">
+            </ShowList>
+        </div>
+        <h4>Program Header Table</h4>
+        <div>
+            <ShowList v-for="(segment, idx) in program_header"
+                      title=""
+                      v-bind:list="segment"
+                      v-bind:key="idx">
+            </ShowList>
+        </div>
+        <h4>Section Header Table</h4>
+        <div>
+            <ShowList v-for="(section, idx) in section_header"
+                      title=""
+                      v-bind:list="section"
+                      v-bind:key="idx">
+            </ShowList>
+        </div>
     </div>
 </template>
 
@@ -15,6 +33,16 @@
 
 import { ParseElf } from '../elf/elf.js'
 import ShowList from './ShowList.vue'
+
+function GetListContentRepresentation(list)
+{
+    let listOfRepresentations = []
+    for (let item of list)
+    {
+        listOfRepresentations.push(item.getRepresentation())
+    }
+    return listOfRepresentations
+}
 
 export default {
     name: 'ElfFileVisualiser',
@@ -48,6 +76,16 @@ export default {
             if (!this.data)
                 return;
             return this.data.elf_header.getRepresentation()
+        },
+        section_header() {
+            if (!this.data)
+                return;
+            return GetListContentRepresentation(this.data.sections)
+        },
+        program_header() {
+            if (!this.data)
+                return;
+            return GetListContentRepresentation(this.data.segments)
         },
     },
 }

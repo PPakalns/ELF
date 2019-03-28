@@ -175,6 +175,13 @@ class DataRepresentation
         }
     }
 
+    getLongData(key)
+    {
+        // This could return wrong value if the stored number ir larger than 2^53 - 1
+        // In normal elf files there are no such offsets or virtual addresses
+        return this.data[key].toNumber()
+    }
+
     getRepresentation()
     {
         let repr = []
@@ -193,6 +200,43 @@ class DataRepresentation
     get length()
     {
         return this.view.length
+    }
+}
+
+function GetDescriptionOfSection()
+{
+    return [
+        {name: 'sh_name'      , type: DATA_TYPES.UInt32, hex: true},
+        {name: 'sh_type'      , type: DATA_TYPES.UInt32, hex: true},
+        {name: 'sh_flags'     , type: DATA_TYPES.UInt64, hex: true},
+        {name: 'sh_addr'      , type: DATA_TYPES.UInt64, hex: true},
+        {name: 'sh_offset'    , type: DATA_TYPES.UInt64, hex: true},
+        {name: 'sh_size'      , type: DATA_TYPES.UInt64, hex: true},
+        {name: 'sh_link'      , type: DATA_TYPES.UInt32, hex: true},
+        {name: 'sh_info'      , type: DATA_TYPES.UInt32, hex: true},
+        {name: 'sh_addralign' , type: DATA_TYPES.UInt64, hex: true},
+        {name: 'sh_entsize'   , type: DATA_TYPES.UInt64, hex: true},
+    ]
+}
+
+function GetDescriptionOfSegment()
+{
+    return [
+        {name: 'p_type'  , type: DATA_TYPES.UInt32, hex: true},
+        {name: 'p_flags' , type: DATA_TYPES.UInt32, hex: true},
+        {name: 'p_offset', type: DATA_TYPES.UInt64, hex: true},
+        {name: 'p_vaddr' , type: DATA_TYPES.UInt64, hex: true},
+        {name: 'p_paddr' , type: DATA_TYPES.UInt64, hex: true},
+        {name: 'p_filesz', type: DATA_TYPES.UInt64, hex: true},
+        {name: 'p_memsz' , type: DATA_TYPES.UInt64, hex: true},
+        {name: 'p_align' , type: DATA_TYPES.UInt64, hex: true},
+    ]
+}
+
+function GetCalcOffsetWithIdx(offset, entrySize)
+{
+    return function(idx){
+        return offset + entrySize * idx
     }
 }
 
@@ -219,6 +263,22 @@ class Elf {
             {name: 'e_shnum'     , type: DATA_TYPES.UInt16},
             {name: 'e_shstrndx'  , type: DATA_TYPES.UInt16},
         ], this.reader, 0);
+
+        let sectionOffset = GetCalcOffsetWithIdx(this.elf_header.getLongData('e_shoff'),
+                                                 this.elf_header.getLongData('e_shentsize'))
+        this.sections = []
+        for (let sectionCount = this.elf_header.getLongData('e_shnum'), idx = 0; idx < sectionCount; idx++)
+        {
+            this.sections.push(new DataRepresentation(GetDescriptionOfSection(), this.reader, sectionOffset(idx)))
+        }
+
+        let segmentOffset = GetCalcOffsetWithIdx(this.elf_header.getLongData('e_phoff'),
+                                                 this.elf_header.getLongData('e_phentsize'))
+        this.segments = []
+        for (let segmentCount = this.elf_header.getLongData('e_phnum'), idx = 0; idx < segmentCount; idx++)
+        {
+            this.segments.push(new DataRepresentation(GetDescriptionOfSegment(), this.reader, segmentOffset(idx)))
+        }
     }
 }
 
