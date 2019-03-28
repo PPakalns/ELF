@@ -2,9 +2,9 @@
     <div>
         <h4>{{ title }}</h4>
         <dl id="v-for-list" class="demo">
-            <template v-for="value in list">
-                <dt>{{ value.name }}</dt>
-                <dd>{{ value.value }}</dd>
+            <template v-for="(value, index) in list">
+                <dt v-bind:key="index">{{ value.name }}</dt>
+                <dd v-bind:key="index">{{ value.value }}</dd>
             </template>
         </dl>
     </div>

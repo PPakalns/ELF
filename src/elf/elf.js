@@ -73,15 +73,12 @@ class ByteView {
 
     getView(offset, length)
     {
-        checkRange(offset, length)
+        this.checkRange(offset, length)
         return new ByteView(this.buffer, this.offset + offset, length)
     }
 
     readUInt64(offset)
     {
-        console.log(new Long.fromBytesLE(this.readBytes(offset, 8), true))
-        console.log((new Long.fromBytesLE(this.readBytes(offset, 8), true)).toString())
-        console.log(console.log(this.readBytes(offset, 8), true))
         return new Long.fromBytesLE(this.readBytes(offset, 8), true)
     }
 
@@ -222,14 +219,11 @@ class Elf {
             {name: 'e_shnum'     , type: DATA_TYPES.UInt16},
             {name: 'e_shstrndx'  , type: DATA_TYPES.UInt16},
         ], this.reader, 0);
-
-        console.log(this.elf_header.getRepresentation())
     }
 }
 
 function ParseElf(data)
 {
-    console.log("loading data")
     return new Elf(data)
 }
 
