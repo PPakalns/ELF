@@ -153,25 +153,39 @@ class DataRepresentation
 {
     constructor(description, parentView, offset)
     {
-        let calculatedLength = 0
-        for (let desc of description)
-        {
-            calculatedLength += desc.type.size
-        }
-
-        this.view = parentView.getView(offset, calculatedLength)
         this.description = description
+        this.dataSize = this.calculateDataSize()
         this.data = {}
+        this.view = parentView.getView(offset, this.dataSize)
         this.readData()
+    }
+
+    calculateDataSize()
+    {
+        let calculatedSize = 0;
+        for (let desc of this.description)
+        {
+            if (desc instanceof DataRepresentation)
+            {
+                calculatedSize += desc.dataSize
+            }
+            calculatedSize += desc.type.size
+        }
+        return calculatedSize;
     }
 
     readData()
     {
-        let offset = 0
-        for (let desc of this.description)
+        let offset = 0;
+        if (this.description instanceof Array)
         {
-            this.data[desc.name] = this.view.readType(offset, desc.type)
-            offset += desc.type.size
+            for (let desc of this.description)
+            {
+                offset += this.readType(desc, offset)
+            }
+        }
+        else {
+            this.readType(this.description, offset)
         }
     }
 
@@ -182,24 +196,42 @@ class DataRepresentation
         return this.data[key].toNumber()
     }
 
-    getRepresentation()
+    readType(desc, offset)
     {
-        let repr = []
-        for (let desc of this.description)
+        if (desc.type instanceof DataRepresentation)
         {
-            let value = this.data[desc.name]
-            if (desc.hex)
+            this.data[desc.name] = desc.type.getRepresentation()
+            return desc.type.dataSize
+        }
+        this.data[desc.name] = this.view.readType(offset, desc.type)
+        return desc.type.size
+    }
+
+    getRepresentation() {
+        let repr = []
+        if (this.description instanceof Array)
+        {
+            for (let desc of this.description)
             {
-                value = "0x"+value.toString(16)
+                repr.push(this.getValueFor(desc))
             }
-            repr.push({name: desc.name, value: value})
+        }
+        else
+        {
+            repr.push(this.getValueFor(this.description))
         }
         return repr
     }
 
-    get length()
+    getValueFor(desc)
     {
-        return this.view.length
+        let value = this.data[desc.name]
+
+        if (desc.hex)
+        {
+            value = "0x" + value.toString(16)
+        }
+        return {name: desc.name, value: value};
     }
 }
 
@@ -233,6 +265,42 @@ function GetDescriptionOfSegment()
     ]
 }
 
+function GetDescriptionOfIdent()
+{
+    return [
+        {name: 'EI_MAG0', type: new DATA_TYPES.Bytes(1)},
+        {name: 'EI_MAG1', type: new DATA_TYPES.Bytes(1)},
+        {name: 'EI_MAG2', type: new DATA_TYPES.Bytes(1)},
+        {name: 'EI_MAG3', type: new DATA_TYPES.Bytes(1)},
+        {name: 'EI_CLASS', type: new DATA_TYPES.Bytes(1)},
+        {name: 'EI_DATA', type: new DATA_TYPES.Bytes(1)},
+        {name: 'EI_VERSION', type: new DATA_TYPES.Bytes(1)},
+        {name: 'EI_OSABI', type: new DATA_TYPES.Bytes(1)},
+        {name: 'EI_ABIVERSION', type: new DATA_TYPES.Bytes(1)},
+        {name: 'EI_PAD', type: new DATA_TYPES.Bytes(7)},
+    ];
+}
+
+function GetDescriptionOfElf(parentView)
+{
+    return [
+        {name: 'e_ident', type: new DataRepresentation(GetDescriptionOfIdent(), parentView, 0)},
+        {name: 'e_type', type: new DATA_TYPES.Bytes(2)},
+        {name: 'e_machine', type: new DATA_TYPES.Bytes(2)},
+        {name: 'e_version', type: DATA_TYPES.UInt32, hex: true},
+        {name: 'e_entry', type: DATA_TYPES.UInt64, hex: true},
+        {name: 'e_phoff', type: DATA_TYPES.UInt64, hex: true},
+        {name: 'e_shoff', type: DATA_TYPES.UInt64, hex: true},
+        {name: 'e_flags', type: DATA_TYPES.UInt32, hex: true},
+        {name: 'e_ehsize', type: DATA_TYPES.UInt16, hex: true},
+        {name: 'e_phentsize', type: DATA_TYPES.UInt16, hex: true},
+        {name: 'e_phnum', type: DATA_TYPES.UInt16},
+        {name: 'e_shentsize', type: DATA_TYPES.UInt16, hex: true},
+        {name: 'e_shnum', type: DATA_TYPES.UInt16},
+        {name: 'e_shstrndx', type: DATA_TYPES.UInt16},
+    ]
+}
+
 function GetCalcOffsetWithIdx(offset, entrySize)
 {
     return function(idx){
@@ -240,29 +308,14 @@ function GetCalcOffsetWithIdx(offset, entrySize)
     }
 }
 
-class Elf {
+class Elf
+{
     constructor(arrayBuffer)
     {
-        this.buffer = arrayBuffer
-        this.reader = new ByteData(this.buffer)
-        this.length = this.reader.length
-
-        this.elf_header = new DataRepresentation([
-            {name: 'e_ident'     , type: new DATA_TYPES.Bytes(16)},
-            {name: 'e_type'      , type: new DATA_TYPES.Bytes(2)},
-            {name: 'e_machine'   , type: new DATA_TYPES.Bytes(2)},
-            {name: 'e_version'   , type: DATA_TYPES.UInt32, hex: true},
-            {name: 'e_entry'     , type: DATA_TYPES.UInt64, hex: true},
-            {name: 'e_phoff'     , type: DATA_TYPES.UInt64, hex: true},
-            {name: 'e_shoff'     , type: DATA_TYPES.UInt64, hex: true},
-            {name: 'e_flags'     , type: DATA_TYPES.UInt32, hex: true},
-            {name: 'e_ehsize'    , type: DATA_TYPES.UInt16, hex: true},
-            {name: 'e_phentsize' , type: DATA_TYPES.UInt16, hex: true},
-            {name: 'e_phnum'     , type: DATA_TYPES.UInt16},
-            {name: 'e_shentsize' , type: DATA_TYPES.UInt16, hex: true},
-            {name: 'e_shnum'     , type: DATA_TYPES.UInt16},
-            {name: 'e_shstrndx'  , type: DATA_TYPES.UInt16},
-        ], this.reader, 0);
+        this.buffer = arrayBuffer;
+        this.reader = new ByteData(this.buffer);
+        this.length = this.reader.length;
+        this.elf_header = new DataRepresentation(GetDescriptionOfElf(this.reader), this.reader, 0);
 
         let sectionOffset = GetCalcOffsetWithIdx(this.elf_header.getLongData('e_shoff'),
                                                  this.elf_header.getLongData('e_shentsize'))
