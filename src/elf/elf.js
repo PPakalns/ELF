@@ -135,7 +135,7 @@ class ByteData
         this.buffer = new Uint8Array(buffer)
     }
 
-    get length(){
+    getLength(){
         return this.buffer.byteLength
     }
 
@@ -234,6 +234,13 @@ class DataRepresentation
     }
 }
 
+class SectionHeader extends DataRepresentation
+{
+    constructor(parentView, offset, nameOffset, nameSize) {
+        super(GetDescriptionOfSection(), parentView, offset);
+    }
+}
+
 function GetDescriptionOfSection()
 {
     return [
@@ -316,9 +323,11 @@ class Elf
         let sectionOffset = GetCalcOffsetWithIdx(this.elf_header.getLongData('e_shoff'),
                                                  this.elf_header.getLongData('e_shentsize'))
         this.sections = []
+        this.createSectionNameView(sectionOffset);
         for (let sectionCount = this.elf_header.getLongData('e_shnum'), idx = 0; idx < sectionCount; idx++)
         {
-            this.sections.push(new DataRepresentation(GetDescriptionOfSection(), this.reader, sectionOffset(idx)))
+            let section_header = new SectionHeader(this.reader, sectionOffset(idx))
+            this.sections.push({name: this.getSectionName(section_header.data['sh_name']), header: section_header})
         }
 
         let segmentOffset = GetCalcOffsetWithIdx(this.elf_header.getLongData('e_phoff'),
@@ -328,6 +337,26 @@ class Elf
         {
             this.segments.push(new DataRepresentation(GetDescriptionOfSegment(), this.reader, segmentOffset(idx)))
         }
+    }
+    getSectionName(offset)
+    {
+        let i = 0
+        let name = ""
+        do
+        {
+            name += String.fromCharCode(this.sectionNameView.readBytes(parseInt(offset) + i, 1))
+            i += 1
+        }
+        while(name[i-1]!=='\0')
+        return name
+    }
+    createSectionNameView(sectionOffset)
+    {
+        let sectionNameId = this.elf_header.getLongData('e_shstrndx')
+        let sectionNameHeader = new SectionHeader(this.reader, sectionOffset(sectionNameId))
+        let sectionNameOffset = sectionNameHeader.getLongData('sh_offset')
+        let sectionNameSize = sectionNameHeader.getLongData('sh_size')
+        this.sectionNameView = this.reader.getView(sectionNameOffset, sectionNameSize)
     }
 }
 

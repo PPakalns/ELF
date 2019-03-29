@@ -7,7 +7,7 @@
         </div>
         <h4>Program Header Table</h4>
         <div>
-            <ShowList v-for="(segment, idx) in program_header"
+            <ShowList v-for="(segment, idx) in program_headers"
                       title=""
                       v-bind:list="segment"
                       v-bind:key="idx">
@@ -15,9 +15,9 @@
         </div>
         <h4>Section Header Table</h4>
         <div>
-            <ShowList v-for="(section, idx) in section_header"
-                      title=""
-                      v-bind:list="section"
+            <ShowList v-for="(section, idx) in section_headers"
+                      v-bind:title="section.name"
+                      v-bind:list="section.list"
                       v-bind:key="idx">
             </ShowList>
         </div>
@@ -40,6 +40,16 @@ function GetListContentRepresentation(list)
     for (let item of list)
     {
         listOfRepresentations.push(item.getRepresentation())
+    }
+    return listOfRepresentations
+}
+
+function GetSectionRepresentationsWithNames(section_headers)
+{
+    let listOfRepresentations = []
+    for (let item of section_headers)
+    {
+        listOfRepresentations.push({name: item.name ,list: item.header.getRepresentation()})
     }
     return listOfRepresentations
 }
@@ -77,12 +87,12 @@ export default {
                 return;
             return this.data.elf_header.getRepresentation()
         },
-        section_header() {
+        section_headers() {
             if (!this.data)
                 return;
-            return GetListContentRepresentation(this.data.sections)
+            return GetSectionRepresentationsWithNames(this.data.sections)
         },
-        program_header() {
+        program_headers() {
             if (!this.data)
                 return;
             return GetListContentRepresentation(this.data.segments)
