@@ -209,16 +209,16 @@ class DataRepresentation
 
     getRepresentation() {
         let repr = []
-        if (this.description instanceof Array)
+        for (let desc of this.description)
         {
-            for (let desc of this.description)
+            if (desc.type instanceof DataRepresentation)
+            {
+                repr.push({name: desc.name, value: desc.type.getRepresentation()})
+            }
+            else
             {
                 repr.push(this.getValueFor(desc))
             }
-        }
-        else
-        {
-            repr.push(this.getValueFor(this.description))
         }
         return repr
     }
@@ -226,7 +226,6 @@ class DataRepresentation
     getValueFor(desc)
     {
         let value = this.data[desc.name]
-
         if (desc.hex)
         {
             value = "0x" + value.toString(16)
@@ -268,10 +267,7 @@ function GetDescriptionOfSegment()
 function GetDescriptionOfIdent()
 {
     return [
-        {name: 'EI_MAG0', type: new DATA_TYPES.Bytes(1)},
-        {name: 'EI_MAG1', type: new DATA_TYPES.Bytes(1)},
-        {name: 'EI_MAG2', type: new DATA_TYPES.Bytes(1)},
-        {name: 'EI_MAG3', type: new DATA_TYPES.Bytes(1)},
+        {name: 'EI_MAG', type: new DATA_TYPES.Bytes(4)},
         {name: 'EI_CLASS', type: new DATA_TYPES.Bytes(1)},
         {name: 'EI_DATA', type: new DATA_TYPES.Bytes(1)},
         {name: 'EI_VERSION', type: new DATA_TYPES.Bytes(1)},
