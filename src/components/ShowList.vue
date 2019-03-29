@@ -1,7 +1,7 @@
 <template>
     <div>
         <h4 v-if="title">{{ title }}</h4>
-        <dl id="v-for-list" class="demo">
+        <dl>
             <template v-for="(value, index) in list">
                 <dt v-bind:key="index + '-dt'">{{ value.name }}</dt>
                 <dd v-bind:key="index + '-dd'">
