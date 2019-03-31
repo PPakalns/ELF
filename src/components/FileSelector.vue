@@ -12,7 +12,7 @@
 .file-select > .select-button {
     padding: 1rem;
 
-    color: while;
+    color: white;
     background-color: #2EA169;
 
     border-radius: .3rem;

@@ -1,5 +1,6 @@
 <template>
     <div v-if="data">
+        <ShowVisualization v-bind:data="null"/>
         <div>
             <span>File size: {{ data.length }} bytes</span>
             <ShowList title="ELF header" v-bind:list="elf_header">
@@ -33,6 +34,7 @@
 
 import { ParseElf } from '../elf/elf.js'
 import ShowList from './ShowList.vue'
+import ShowVisualization from './ShowVisualization'
 
 function GetListContentRepresentation(list)
 {
@@ -58,6 +60,7 @@ export default {
     name: 'ElfFileVisualiser',
     components: {
         ShowList,
+        ShowVisualization
     },
     props: {
         elf: null,
