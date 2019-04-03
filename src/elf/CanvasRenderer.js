@@ -48,40 +48,61 @@ class ColorAdder{
 }
 
 class CanvasRenderer{
-    constructor(data, canvas, legendRatio){
+    constructor(parsedData, canvas, legendRatio){
         this.canvas = canvas;
         this.canvasCtx = canvas.getContext("2d");
         this.canvasCtx.font = "20px Arial";
-        this.sizeSum = data.reduce((accumulator, currentValue) => accumulator + currentValue.size, 0);
-        this.list = new ColorAdder(data).getColorizedList();
         this.legendRatio = legendRatio; //Should be 0 - 1;
+
+        this.inMemoryData = {};
+        this.inFileData = {};
+        this.initializeArraysWithColors(parsedData);
     }
 
-    renderCanvas(){
-        let locationSum = 0;
+    initializeArraysWithColors(parsedData){
+        let sortedAscending;
 
-        for(let i = 0; i < this.list.length; i++){
-            let currentElement = this.list[i];
+        sortedAscending = parsedData.inMemory.memoryDistribution.sort((a, b) => a.offset - b.offset);
+        this.inMemoryData.size = parsedData.inMemory.totalMemory;
+        this.inMemoryData.list = new ColorAdder(sortedAscending).getColorizedList();
 
-            this.renderRectangles(currentElement, locationSum);
-            this.renderLegend(currentElement, locationSum);
+        sortedAscending = parsedData.inFile.memoryDistribution.sort((a, b) => a.offset - b.offset);
+        this.inFileData.size = parsedData.inFile.totalMemory;
+        this.inFileData.list = new ColorAdder(sortedAscending).getColorizedList();
+    }
 
-            locationSum += currentElement.size;
+    renderInFileCanvas(){
+        this.renderCanvas(this.inFileData);
+    }
+
+    renderInMemoryCanvas(){
+        this.renderCanvas(this.inMemoryData);
+    }
+
+    renderCanvas(data){
+        this.canvasCtx.fillStyle = "grey";
+        this.canvasCtx.fillRect(0, 0, this.getRectangleWidth(), this.canvas.height);
+
+        for(let i = 0; i < data.list.length; i++){
+            let currentElement = data.list[i];
+
+            this.renderRectangles(currentElement, data.size);
+            this.renderLegend(currentElement, data.size);
         }
     }
 
-    renderLegend(currentElement, locationSum){
+    renderLegend(currentElement, size){
         this.canvasCtx.fillStyle = 'black';
-        this.canvasCtx.fillText(currentElement.name, this.getRectangleWidth() + 10, this.calculateHeight(locationSum) + 18,this.getLegendWidth() - 10);
+        this.canvasCtx.fillText(currentElement.name, this.getRectangleWidth() + 10, this.calculateHeight(currentElement.offset, size) + 18,this.getLegendWidth() - 10);
     }
 
-    renderRectangles(currentElement, locationSum){
+    renderRectangles(currentElement, size){
         this.canvasCtx.fillStyle = currentElement.color;
-        this.canvasCtx.fillRect(0, this.calculateHeight(locationSum), this.getRectangleWidth(), this.calculateHeight(currentElement.size));
+        this.canvasCtx.fillRect(0, this.calculateHeight(currentElement.offset, size), this.getRectangleWidth(), this.calculateHeight(currentElement.size, size));
     }
 
-    calculateHeight(size){
-        return size*this.canvas.height/this.sizeSum;
+    calculateHeight(size, sizeSum){
+        return size*this.canvas.height/sizeSum;
     }
 
     getRectangleWidth(){
@@ -93,11 +114,10 @@ class CanvasRenderer{
     }
 }
 
-function RenderCanvas(data, canvas, legendRatio) {
-    let canvasRenderer = new CanvasRenderer(data, canvas, legendRatio);
-    canvasRenderer.renderCanvas();
+function InitializeCanvasRenderer(data, canvas, legendRatio) {
+    return new CanvasRenderer(data, canvas, legendRatio);
 }
 
 export {
-    RenderCanvas
+    InitializeCanvasRenderer
 }

@@ -6,7 +6,7 @@
 </style>
 
 <script>
-    import {RenderCanvas} from '../elf/CanvasRenderer'
+    import {InitializeCanvasRenderer} from '../elf/CanvasRenderer'
 
     export default {
         name: 'ShowVisualization',
@@ -23,19 +23,41 @@
             }
         },*/
         mounted: function() {
-            RenderCanvas(
-                [
-                    {name: "Header 1", size: 10},
-                    {name: "Header 2", size: 10},
-                    {name: "Header 3", size: 10},
-                    {name: "Very Long Header 123456", size: 10},
-                    {name: "Header 5", size: 10},
-                    {name: "Header 6", size: 10},
-                    {name: "Header 7", size: 10},
-                ],
-                this.$refs.canvas,
-                0.2
-            );
+            let data = {
+                inMemory: {
+                    totalMemory: 150,
+                    memoryDistribution: [
+                        {
+                            name:"Test1",
+                            size: 50,
+                            offset: 0
+                        },
+                        {
+                            name:"Test2",
+                            size: 100,
+                            offset: 100
+                        },
+                    ]
+                },
+                inFile: {
+                    totalMemory: 200,
+                    memoryDistribution: [
+                        {
+                            name:"Test1",
+                            size: 100,
+                            offset: 0
+                        },
+                        {
+                            name:"Test2",
+                            size: 100,
+                            offset: 100
+                        },
+                    ]
+                }
+            };
+
+            let canvasRenderer = InitializeCanvasRenderer(data, this.$refs.canvas, 0.2); //Must be set in watch.
+            canvasRenderer.renderInMemoryCanvas();
         }
     }
 </script>
