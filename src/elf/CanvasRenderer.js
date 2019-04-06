@@ -90,13 +90,14 @@ class CanvasRenderer{
             let currentElement = data.list[i];
 
             this.renderRectangles(currentElement, data.size);
-            this.renderLegend(currentElement, data.size);
+            this.renderLegend(currentElement, i);
         }
     }
 
-    renderLegend(currentElement, size){
+    renderLegend(currentElement, i){
+        this.canvasCtx.fillRect(this.getRectangleWidth() + 10, i * 20, 20, 20);
         this.canvasCtx.fillStyle = 'black';
-        this.canvasCtx.fillText(currentElement.name, this.getRectangleWidth() + 10, this.calculateHeight(currentElement.offset, size) + 18,this.getLegendWidth() - 10);
+        this.canvasCtx.fillText(currentElement.name + " " + currentElement.size, this.getRectangleWidth() + 40, i * 20 + 17,this.getLegendWidth() - 20);
     }
 
     renderRectangles(currentElement, size){

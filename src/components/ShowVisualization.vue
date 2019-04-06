@@ -56,6 +56,7 @@
             }
         },*/
         mounted: function() {
+            //Test data
             let data = {
                 inMemory: {
                     totalMemory: 150,
@@ -73,7 +74,7 @@
                     ]
                 },
                 inFile: {
-                    totalMemory: 200,
+                    totalMemory: 1800,
                     memoryDistribution: [
                         {
                             name:"Test1",
@@ -83,13 +84,83 @@
                         {
                             name:"Test2",
                             size: 100,
-                            offset: 100
+                            offset: 50
                         },
+                        {
+                            name:"Test1",
+                            size: 100,
+                            offset: 250
+                        },
+                        {
+                            name:"Test2",
+                            size: 100,
+                            offset: 400
+                        },
+                        {
+                            name:"Test2",
+                            size: 100,
+                            offset: 500
+                        },
+                        {
+                            name:"Test1",
+                            size: 100,
+                            offset: 600
+                        },
+                        {
+                            name:"Test2",
+                            size: 100,
+                            offset: 700
+                        },
+                        {
+                            name:"Test1",
+                            size: 100,
+                            offset: 800
+                        },
+                        {
+                            name:"Test1",
+                            size: 50,
+                            offset: 1000
+                        },
+                        {
+                            name:"Test2",
+                            size: 20,
+                            offset: 1100
+                        },
+                        {
+                            name:"Test2",
+                            size: 5,
+                            offset: 1200
+                        },
+                        {
+                            name:"Test2",
+                            size: 100,
+                            offset: 1300
+                        },
+                        {
+                            name:"Test2",
+                            size: 100,
+                            offset: 1400
+                        },
+                        {
+                            name:"Test2",
+                            size: 100,
+                            offset: 1500
+                        },
+                        {
+                            name:"Test2",
+                            size: 100,
+                            offset: 1600
+                        },
+                        {
+                            name:"Test2",
+                            size: 100,
+                            offset: 1700
+                        }
                     ]
                 }
             };
 
-            this.canvasRenderer = InitializeCanvasRenderer(data, this.$refs.canvas, 0.2); //Must be set in watch.
+            this.canvasRenderer = InitializeCanvasRenderer(data, this.$refs.canvas, 0.4); //Must be set in watch.
             this.showFile();
         }
     }
