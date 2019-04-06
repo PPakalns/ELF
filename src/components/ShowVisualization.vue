@@ -1,8 +1,26 @@
 <template>
-    <canvas ref="canvas" height="1000" width="1000"></canvas>
+    <div>
+        <h4>Currently showing: in {{currentShowFile ? 'file':'memory'}} distribution</h4>
+        <canvas ref="canvas" height="750" width="750"></canvas>
+        <div>
+            <button v-if="!currentShowFile" v-on:click="showFile">Show File</button>
+            <button v-if="currentShowFile" v-on:click="showMemory">Show Memory</button>
+        </div>
+    </div>
 </template>
 
 <style scoped>
+    button {
+        padding: 1rem;
+
+        color: white;
+        background-color: #2EA169;
+
+        border-radius: .3rem;
+
+        text-align: center;
+        font-weight: bold;
+    }
 </style>
 
 <script>
@@ -11,7 +29,22 @@
     export default {
         name: 'ShowVisualization',
         props: {
-            data: null
+            data: null,
+        },
+        data() {
+            return {
+                currentShowFile: null,
+            }
+        },
+        methods:{
+            showFile: function(){
+                this.currentShowFile = true;
+                this.canvasRenderer.renderInFileCanvas();
+            },
+            showMemory: function(){
+                this.currentShowFile = false;
+                this.canvasRenderer.renderInMemoryCanvas();
+            }
         },
         /*watch: {
             'data': {
@@ -56,8 +89,8 @@
                 }
             };
 
-            let canvasRenderer = InitializeCanvasRenderer(data, this.$refs.canvas, 0.2); //Must be set in watch.
-            canvasRenderer.renderInMemoryCanvas();
+            this.canvasRenderer = InitializeCanvasRenderer(data, this.$refs.canvas, 0.2); //Must be set in watch.
+            this.showFile();
         }
     }
 </script>

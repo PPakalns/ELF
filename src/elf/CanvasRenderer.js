@@ -80,6 +80,9 @@ class CanvasRenderer{
     }
 
     renderCanvas(data){
+        //Clear canvas
+        this.canvasCtx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
         this.canvasCtx.fillStyle = "grey";
         this.canvasCtx.fillRect(0, 0, this.getRectangleWidth(), this.canvas.height);
 
