@@ -1,33 +1,55 @@
 <template>
-    <div v-if="data">
-        <ShowElfLayout v-bind:data="data"/>
-        <div>
+    <div v-if="data" class="container">
+        <div class="right-column">
+            <ShowElfLayout v-bind:data="data"/>
+        </div>
+        <div class="left-column">
+            <h2>Elf Header</h2>
+            <div>
+                <ShowList v-bind:list="elf_header">
+                </ShowList>
+            </div>
             <span>File size: {{ data.length }} bytes</span>
-            <ShowList title="ELF header" v-bind:list="elf_header">
-            </ShowList>
-        </div>
-        <h4>Program Header Table</h4>
-        <div>
-            <ShowList v-for="(segment, idx) in program_headers"
-                      title=""
-                      v-bind:list="segment"
-                      v-bind:key="idx">
-            </ShowList>
-        </div>
-        <h4>Section Header Table</h4>
-        <div>
-            <ShowList v-for="(section, idx) in section_headers"
-                      v-bind:title="section.name"
-                      v-bind:list="section.list"
-                      v-bind:key="idx">
-            </ShowList>
+            <h2>Program Header Table</h2>
+            <div>
+                <ShowList v-for="(segment, idx) in program_headers"
+                          collapsable="true"
+                          start_collapsed="true"
+                          v-bind:title="segment.name"
+                          v-bind:list="segment.list"
+                          v-bind:key="idx">
+                </ShowList>
+            </div>
+            <h2>Section Header Table</h2>
+            <div>
+                <ShowList v-for="(section, idx) in section_headers"
+                          collapsable="true"
+                          start_collapsed="true"
+                          v-bind:title="section.name"
+                          v-bind:list="section.list"
+                          v-bind:key="idx">
+                </ShowList>
+            </div>
         </div>
     </div>
 </template>
 
-
 <style scoped>
+.container {
+    display: flex;
+    flex-direction: row-reverse;
+    flex-wrap: wrap;
+    justify-content: center;
+}
 
+.left-column {
+    flex: 0 0.1 500px;
+    margin-right: 20px;
+}
+
+.right-column {
+    flex: 0 1 750px;
+}
 </style>
 
 <script>
@@ -41,20 +63,11 @@ function GetListContentRepresentation(list)
     let listOfRepresentations = []
     for (let item of list)
     {
-        listOfRepresentations.push(item.getRepresentation())
+        listOfRepresentations.push({name: item.name , list: item.header.getRepresentation()})
     }
     return listOfRepresentations
 }
 
-function GetSectionRepresentationsWithNames(section_headers)
-{
-    let listOfRepresentations = []
-    for (let item of section_headers)
-    {
-        listOfRepresentations.push({name: item.name ,list: item.header.getRepresentation()})
-    }
-    return listOfRepresentations
-}
 
 export default {
     name: 'ElfFileVisualiser',
@@ -93,7 +106,7 @@ export default {
         section_headers() {
             if (!this.data)
                 return;
-            return GetSectionRepresentationsWithNames(this.data.sections)
+            return GetListContentRepresentation(this.data.sections)
         },
         program_headers() {
             if (!this.data)

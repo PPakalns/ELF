@@ -305,6 +305,26 @@ function GetCalcOffsetWithIdx(offset, entrySize)
     }
 }
 
+const SEGMENT_HEADER_TYPES = {
+    0: 'PT_NULL',
+    1: 'PT_LOAD',
+    2: 'PT_DYNAMIC',
+    3: 'PT_INTERP',
+    4: 'PT_NOTE',
+    5: 'PT_SHLIB',
+    6: 'PT_PHDR',
+}
+
+function GetSegmentType(segmentHeader)
+{
+    let type = segmentHeader.getLongData('p_type')
+    if (SEGMENT_HEADER_TYPES.hasOwnProperty(type))
+    {
+        return SEGMENT_HEADER_TYPES[type]
+    }
+    return 'UNKNOWN_TYPE'
+}
+
 class Elf
 {
     constructor(arrayBuffer)
@@ -323,7 +343,10 @@ class Elf
         for (let sectionCount = this.elf_header.getLongData('e_shnum'), idx = 0; idx < sectionCount; idx++)
         {
             let section_header = new DataRepresentation(GetDescriptionOfSection(), this.reader, sectionOffset(idx))
-            this.sections.push({name: this.getSectionName(section_header.getLongData('sh_name')), header: section_header})
+            this.sections.push({
+                name: this.getSectionName(section_header.getLongData('sh_name')),
+                header: section_header
+            })
         }
 
         let segmentOffset = GetCalcOffsetWithIdx(this.elf_header.getLongData('e_phoff'),
@@ -331,7 +354,11 @@ class Elf
         this.segments = []
         for (let segmentCount = this.elf_header.getLongData('e_phnum'), idx = 0; idx < segmentCount; idx++)
         {
-            this.segments.push(new DataRepresentation(GetDescriptionOfSegment(), this.reader, segmentOffset(idx)))
+            let header = new DataRepresentation(GetDescriptionOfSegment(), this.reader, segmentOffset(idx))
+            this.segments.push({
+                name: GetSegmentType(header),
+                header: header,
+            })
         }
     }
 

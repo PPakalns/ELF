@@ -23,6 +23,7 @@
 
         text-align: center;
         font-weight: bold;
+        margin: 5px;
     }
 </style>
 
@@ -82,15 +83,16 @@
         let data = []
         for (let segment of segmentData)
         {
-            if (segment.getLongData('p_type') != PT_LOAD)
+            let header = segment.header
+            if (header.getLongData('p_type') != PT_LOAD)
                 continue
 
             data.push({
-                name: "LOAD_" + data.length,
-                offset: segment.getLongData('p_offset'),
-                address: segment.getLongData('p_vaddr'),
-                fileSize: segment.getLongData('p_filesz'),
-                memorySize: segment.getLongData('p_memsz'),
+                name: segment.name + '_' + data.length,
+                offset: header.getLongData('p_offset'),
+                address: header.getLongData('p_vaddr'),
+                fileSize: header.getLongData('p_filesz'),
+                memorySize: header.getLongData('p_memsz'),
             })
         }
         return getLayout(data, fileLayout)
