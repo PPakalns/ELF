@@ -10,25 +10,39 @@
         </div>
         <div class="visualization">
             <ShowVisualization v-bind:data="currentData"/>
-            <div>
-                <div v-for="(value, index) in currentData.list" v-bind:key="index + 'legend'" v-on:click="handleLegendClick(index)" class="legend-element">
-                    <span v-bind:style="{backgroundColor: value.color}" class="legend-color"></span>
-                    <span v-bind:style=" value.focused ? 'font-weight: bold;' : 'font-weight: initial;' " > {{value.name}} {{value.size}} </span>
+            <div class="controls">
+                <div class="legend">
+                    <span v-bind:style="{backgroundColor: 'gray'}" class="legend-color"></span>
+                    <span v-bind:class="" >Name</span>
+                    <span v-bind:class="" >Offset</span>
+                    <span v-bind:class="" >Size</span>
+                    <div v-for="(value, index) in currentData.list" v-bind:key="index + 'legend'" v-on:click="handleLegendClick(index)" class="legend-element">
+                        <span v-bind:style="{backgroundColor: value.color}" class="legend-color"></span>
+                        <span v-bind:class="{focused: value.focused}" >{{value.name}}</span>
+                        <span v-bind:class="{focused: value.focused}" class="align-right">{{value.offset}}</span>
+                        <span v-bind:class="{focused: value.focused}" class="align-right">{{value.size}}</span>
+                    </div>
                 </div>
-                <label>
-                    Zoom
-                    <input type="number"
+                <div>
+                    <label for="zoom">
+                        Zoom
+                    </label>
+                    <input name="zoom"
+                           type="number"
                            v-on:change="handleZoomChange"
                            v-model.lazy="currentData.zoom"
                            placeholder="Input zoom" />
-                </label>
-                <label>
-                    Offset
-                    <input type="number"
+                </div>
+                <div>
+                    <label for="offset">
+                        Offset
+                    </label>
+                    <input name="offset"
+                           type="number"
                            v-on:change="handleOffsetChange"
                            v-model.lazy="currentData.offset"
                            placeholder="Input offset" />
-                </label>
+                </div>
                 <button v-on:click="handleResetLegend">
                     Reset Legend
                 </button>
@@ -42,15 +56,33 @@
         display: flex;
     }
 
+    .controls{
+        margin-left: 0.5em;
+    }
+
+    .legend{
+        display: grid;
+        grid-template-columns: auto auto auto auto;
+    }
+
     .legend-element{
-        display: flex;
         cursor: pointer;
+        display: contents;
+    }
+
+    .focused {
+        font-weight: bold;
     }
 
     .legend-color{
         width: 18px;
         background-color: blue;
         margin: 0 10px;
+    }
+
+    .align-right{
+        text-align: right;
+        padding-right: 5px;
     }
 
     button {
