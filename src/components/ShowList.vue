@@ -1,12 +1,12 @@
 <template>
     <div class="container">
-        <div v-if="title"
+        <div v-if="title != null"
              class="title"
              v-on:click="collapsed = !collapsed"
-             v-bind:class="{ 'clickable_title': collapsable }">
+             v-bind:class="{ 'clickable_title': collapsible }">
             {{ title }}
         </div>
-        <dl v-if="!collapsed || !collapsable">
+        <dl v-if="!collapsed || !collapsible">
             <template v-for="(value, index) in list">
                 <dt v-bind:key="index + '-dt'">{{ value.name }}</dt>
                 <dd v-bind:key="index + '-dd'">
@@ -29,6 +29,8 @@
 
 .title {
     font-weight: bold;
+    min-height: 1em;
+    width: 100%;
 }
 
 .clickable_title {
@@ -65,7 +67,7 @@ export default {
     props: {
         title: null,
         list: null,
-        collapsable: {
+        collapsible: {
             type: Boolean,
             default: false,
         },

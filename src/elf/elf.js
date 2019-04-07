@@ -364,14 +364,18 @@ class Elf
 
     getSectionName(offset)
     {
-        let i = 0
         let name = ""
-        do
+        for (let i = 0;;i++)
         {
-            name += String.fromCharCode(this.sectionNameView.readBytes(parseInt(offset) + i, 1))
-            i += 1
+            let char = this.sectionNameView.readBytes(parseInt(offset) + i, 1)[0]
+            if (!char)
+                break;
+            name += String.fromCharCode([char])
         }
-        while(name[i-1]!=='\0')
+        if (name === "")
+        {
+            name = "NULL"
+        }
         return name
     }
 

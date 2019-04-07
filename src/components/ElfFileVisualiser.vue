@@ -13,8 +13,8 @@
             <h2>Program Header Table</h2>
             <div>
                 <ShowList v-for="(segment, idx) in program_headers"
-                          collapsable="true"
-                          start_collapsed="true"
+                          :collapsible=true
+                          :start_collapsed=true
                           v-bind:title="segment.name"
                           v-bind:list="segment.list"
                           v-bind:key="idx">
@@ -23,8 +23,8 @@
             <h2>Section Header Table</h2>
             <div>
                 <ShowList v-for="(section, idx) in section_headers"
-                          collapsable="true"
-                          start_collapsed="true"
+                          :collapsible=true
+                          :start_collapsed=true
                           v-bind:title="section.name"
                           v-bind:list="section.list"
                           v-bind:key="idx">
