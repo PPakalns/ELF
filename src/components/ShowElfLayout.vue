@@ -13,9 +13,9 @@
             <div class="controls">
                 <div class="legend">
                     <span v-bind:style="{backgroundColor: 'gray'}" class="legend-color"></span>
-                    <span v-bind:class="" >Name</span>
-                    <span v-bind:class="" >Offset</span>
-                    <span v-bind:class="" >Size</span>
+                    <span>Name</span>
+                    <span>Offset</span>
+                    <span>Size</span>
                     <div v-for="(value, index) in currentData.list" v-bind:key="index + 'legend'" v-on:click="handleLegendClick(index)" class="legend-element">
                         <span v-bind:style="{backgroundColor: value.color}" class="legend-color"></span>
                         <span v-bind:class="{focused: value.focused}" >{{value.name}}</span>
