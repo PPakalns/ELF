@@ -235,13 +235,6 @@ class DataRepresentation
     }
 }
 
-class SectionHeader extends DataRepresentation
-{
-    constructor(parentView, offset) {
-        super(GetDescriptionOfSection(), parentView, offset);
-    }
-}
-
 function GetDescriptionOfSection()
 {
     return [
@@ -329,7 +322,7 @@ class Elf
         this.sections = []
         for (let sectionCount = this.elf_header.getLongData('e_shnum'), idx = 0; idx < sectionCount; idx++)
         {
-            let section_header = new SectionHeader(this.reader, sectionOffset(idx))
+            let section_header = new DataRepresentation(GetDescriptionOfSection(), this.reader, sectionOffset(idx))
             this.sections.push({name: this.getSectionName(section_header.getLongData('sh_name')), header: section_header})
         }
 
@@ -358,7 +351,7 @@ class Elf
     createSectionNameView(sectionOffset)
     {
         let sectionNameId = this.elf_header.getLongData('e_shstrndx')
-        let sectionNameHeader = new SectionHeader(this.reader, sectionOffset(sectionNameId))
+        let sectionNameHeader = new DataRepresentation(GetDescriptionOfSection(), this.reader, sectionOffset(sectionNameId))
         let sectionNameOffset = sectionNameHeader.getLongData('sh_offset')
         let sectionNameSize = sectionNameHeader.getLongData('sh_size')
         this.sectionNameView = this.reader.getView(sectionNameOffset, sectionNameSize)

@@ -1,30 +1,19 @@
 <template>
-    <div>
-        <h4>Currently showing: in {{currentShowFile ? 'file':'memory'}} distribution</h4>
-        <canvas ref="canvas" height="750" width="750"></canvas>
-        <div>
-            <button v-if="!currentShowFile" v-on:click="showFile">Show File</button>
-            <button v-if="currentShowFile" v-on:click="showMemory">Show Memory</button>
-        </div>
-    </div>
+    <canvas ref="canvas" height="750" width="750"></canvas>
 </template>
 
 <style scoped>
-    button {
-        padding: 1rem;
-
-        color: white;
-        background-color: #2EA169;
-
-        border-radius: .3rem;
-
-        text-align: center;
-        font-weight: bold;
-    }
 </style>
 
 <script>
     import {InitializeCanvasRenderer} from '../elf/CanvasRenderer'
+
+    function render() {
+        if (!this.data)
+            return;
+        this.canvasRenderer = InitializeCanvasRenderer(this.data, this.$refs.canvas, 0.4)
+        this.canvasRenderer.renderCanvas();
+    }
 
     export default {
         name: 'ShowVisualization',
@@ -33,135 +22,11 @@
         },
         data() {
             return {
-                currentShowFile: null,
             }
         },
-        methods:{
-            showFile: function(){
-                this.currentShowFile = true;
-                this.canvasRenderer.renderInFileCanvas();
-            },
-            showMemory: function(){
-                this.currentShowFile = false;
-                this.canvasRenderer.renderInMemoryCanvas();
-            }
+        watch: {
+            data: render,
         },
-        /*watch: {
-            'data': {
-                handler(value) {
-                    //TODO: add parsed data to canvas
-                    //console.log("DATA FOR CANVAS IS: ",value);
-                },
-                immediate: true,
-            }
-        },*/
-        mounted: function() {
-            //Test data
-            let data = {
-                inMemory: {
-                    totalMemory: 150,
-                    memoryDistribution: [
-                        {
-                            name:"Test1",
-                            size: 50,
-                            offset: 0
-                        },
-                        {
-                            name:"Test2",
-                            size: 100,
-                            offset: 100
-                        },
-                    ]
-                },
-                inFile: {
-                    totalMemory: 1800,
-                    memoryDistribution: [
-                        {
-                            name:"Test1",
-                            size: 100,
-                            offset: 0
-                        },
-                        {
-                            name:"Test2",
-                            size: 100,
-                            offset: 50
-                        },
-                        {
-                            name:"Test1",
-                            size: 100,
-                            offset: 250
-                        },
-                        {
-                            name:"Test2",
-                            size: 100,
-                            offset: 400
-                        },
-                        {
-                            name:"Test2",
-                            size: 100,
-                            offset: 500
-                        },
-                        {
-                            name:"Test1",
-                            size: 100,
-                            offset: 600
-                        },
-                        {
-                            name:"Test2",
-                            size: 100,
-                            offset: 700
-                        },
-                        {
-                            name:"Test1",
-                            size: 100,
-                            offset: 800
-                        },
-                        {
-                            name:"Test1",
-                            size: 50,
-                            offset: 1000
-                        },
-                        {
-                            name:"Test2",
-                            size: 20,
-                            offset: 1100
-                        },
-                        {
-                            name:"Test2",
-                            size: 5,
-                            offset: 1200
-                        },
-                        {
-                            name:"Test2",
-                            size: 100,
-                            offset: 1300
-                        },
-                        {
-                            name:"Test2",
-                            size: 100,
-                            offset: 1400
-                        },
-                        {
-                            name:"Test2",
-                            size: 100,
-                            offset: 1500
-                        },
-                        {
-                            name:"Test2",
-                            size: 100,
-                            offset: 1600
-                        },
-                        {
-                            name:"Test2",
-                            size: 100,
-                            offset: 1700
-                        }
-                    ]
-                }
-            };
-
-            this.canvasRenderer = InitializeCanvasRenderer(data, this.$refs.canvas, 0.4); //Must be set in watch.
-            this.showFile();
-        }
+        mounted: render,
     }
 </script>

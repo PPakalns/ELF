@@ -8,7 +8,6 @@ class ColorAdder{
         for (let i = 0; i < this.list.length; i++) {
             let newElement = this.list[i];
             newElement.color = this.getColor(i);
-
             this.colorizedList.push(newElement);
         }
 
@@ -48,48 +47,38 @@ class ColorAdder{
 }
 
 class CanvasRenderer{
-    constructor(parsedData, canvas, legendRatio){
+    constructor(inputData, canvas, legendRatio){
         this.canvas = canvas;
         this.canvasCtx = canvas.getContext("2d");
         this.canvasCtx.font = "20px Arial";
         this.legendRatio = legendRatio; //Should be 0 - 1;
 
-        this.inMemoryData = {};
-        this.inFileData = {};
-        this.initializeArraysWithColors(parsedData);
+        this.data = {};
+        this.initializeArraysWithColors(inputData);
     }
 
-    initializeArraysWithColors(parsedData){
-        let sortedAscending;
-
-        sortedAscending = parsedData.inMemory.memoryDistribution.sort((a, b) => a.offset - b.offset);
-        this.inMemoryData.size = parsedData.inMemory.totalMemory;
-        this.inMemoryData.list = new ColorAdder(sortedAscending).getColorizedList();
-
-        sortedAscending = parsedData.inFile.memoryDistribution.sort((a, b) => a.offset - b.offset);
-        this.inFileData.size = parsedData.inFile.totalMemory;
-        this.inFileData.list = new ColorAdder(sortedAscending).getColorizedList();
+    initializeArraysWithColors(inputData){
+        let sortedAscending = Array.from(inputData).sort((a, b) => a.offset - b.offset);
+        let maxSize = 0
+        for (let val of inputData)
+        {
+            maxSize = Math.max(maxSize, val.offset + val.size)
+        }
+        this.data.size = maxSize
+        this.data.list = new ColorAdder(sortedAscending).getColorizedList();
     }
 
-    renderInFileCanvas(){
-        this.renderCanvas(this.inFileData);
-    }
-
-    renderInMemoryCanvas(){
-        this.renderCanvas(this.inMemoryData);
-    }
-
-    renderCanvas(data){
+    renderCanvas(){
         //Clear canvas
         this.canvasCtx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
         this.canvasCtx.fillStyle = "grey";
         this.canvasCtx.fillRect(0, 0, this.getRectangleWidth(), this.canvas.height);
 
-        for(let i = 0; i < data.list.length; i++){
-            let currentElement = data.list[i];
+        for(let i = 0; i < this.data.list.length; i++){
+            let currentElement = this.data.list[i];
 
-            this.renderRectangles(currentElement, data.size);
+            this.renderRectangles(currentElement, this.data.size);
             this.renderLegend(currentElement, i);
         }
     }
