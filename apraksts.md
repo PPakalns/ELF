@@ -17,6 +17,7 @@ Darba izstrādes repozitorijs: https://github.com/PPakalns/ELF
 ## Mērķi
 
 Uzskatāmi un ar pareizām attiecībām attēlot:
+
 * ELF faila saturu,
 * tā struktūru izvietojumu failā,
 * tā struktūru izvietojumu atmiņā pēc programmas ielādes.
@@ -25,7 +26,7 @@ Uzskatāmi un ar pareizām attiecībām attēlot:
 
 1. Atveriet lapu,
 1. Veiciet elf faila izvēli:
-    - testēšanai var izmantot izpildāmos failus no lokālā linux,
+    - var izmantot izpildāmos failus no lokālās linux instalācijas,
     - var izvēlēties 64 bitu elf failus no https://github.com/JonathanSalwan/binary-samples ,
     - *vizualizācija patreiz atbalsta tikai 64bit ELF formātu.*
 2. Vizualizācija izvada informāciju par:
@@ -38,5 +39,6 @@ Vizualizācija ir interaktīva, ir iespējams mainīt vizualizācijas `offset` u
 Vizualizācijā struktūras var automātiski pietuvināt tās izvēloties vizualizācijas leģendā.
 
 Lokālai uzstādīšanai:
-    * uzstādiet jaunāko `npm` un `node.js` versiju,
-    * sekojiet instrukcijām `README.md` failā.
+
+* uzstādiet jaunāko `npm` un `node.js` versiju,
+* sekojiet instrukcijām `README.md` failā.
