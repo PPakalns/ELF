@@ -31,7 +31,14 @@
                            type="number"
                            v-on:change="handleZoomChange"
                            v-model.lazy="currentData.zoom"
+                           :min="1"
                            placeholder="Input zoom" />
+                    <vue-slider
+                            :tooltip="'none'"
+                            v-model.lazy="currentData.zoom"
+                            v-on:change="handleSlider"
+                            :min="1"
+                            :max="maxZoom"/>
                 </div>
                 <div>
                     <label for="offset">
@@ -42,6 +49,11 @@
                            v-on:change="handleOffsetChange"
                            v-model.lazy="currentData.offset"
                            placeholder="Input offset" />
+                    <vue-slider
+                            :tooltip="'none'"
+                            v-model.lazy="currentData.offset"
+                            v-on:change="handleSlider"
+                            :max="currentData.size"/>
                 </div>
                 <button v-on:click="handleResetLegend">
                     Reset Legend
@@ -102,6 +114,8 @@
 <script>
     import ShowVisualization from './ShowVisualization.vue';
     import {InitializeColorAdder} from '../elf/VisualizationUtils';
+    import VueSlider from 'vue-slider-component';
+    import 'vue-slider-component/theme/antd.css';
 
     function getLayout(layout, inFile)
     {
@@ -169,7 +183,7 @@
         let data = [];
         for (let segment of segmentData)
         {
-            let header = segment.header
+            let header = segment.header;
             if (header.getLongData('p_type') != PT_LOAD)
                 continue;
 
@@ -195,6 +209,7 @@
         name: 'ShowElfLayout',
         components: {
             ShowVisualization,
+            VueSlider
         },
         props: {
             data: null,
@@ -210,14 +225,13 @@
                 this.focusedIndex = elementIndex;
 
                 let focusedElement = this.currentData.list[elementIndex];
-                let whenShouldScrollRatio = 0.1;
-                let smallestSize = this.currentData.size * whenShouldScrollRatio;
+                let smallestSize = this.currentData.size * this.whenShouldScrollRatio;
 
                 if(focusedElement.size < smallestSize){
                     if(focusedElement.size !== 0){
                         this.currentData.zoom = Math.round(smallestSize/focusedElement.size);
                     }
-                    this.currentData.offset = focusedElement.offset - (focusedElement.size/whenShouldScrollRatio)/2;
+                    this.currentData.offset = focusedElement.offset - (focusedElement.size/this.whenShouldScrollRatio)/2;
                 }
                 else{
                     this.currentData.zoom = 1;
@@ -248,13 +262,18 @@
             },
             handleOffsetChange(){
                 this.$emit('render');
-            }
+            },
+            handleSlider(){
+                this.$forceUpdate();
+                this.$emit('render');
+            },
         },
         data() {
             return {
                 fileLayout: true,
                 sectionLayout: true,
-                focusedIndex: null
+                focusedIndex: null,
+                whenShouldScrollRatio: 0.1
             }
         },
         computed: {
@@ -263,11 +282,29 @@
                     return;
                 let data;
                 if (this.sectionLayout)
-                    data = getSectionLayout(this.data.sections, this.fileLayout)
+                    data = getSectionLayout(this.data.sections, this.fileLayout);
                 else
-                    data = getSegmentLayout(this.data.segments, this.fileLayout)
+                    data = getSegmentLayout(this.data.segments, this.fileLayout);
+
                 return data;
+            },
+            maxZoom() {
+                if(!this.currentData) return;
+                let max;
+
+                //Smallest non 0 element
+                let smallestSize = this.currentData.list.reduce((min, current) => {
+                    if(current.size === 0) return min;
+                    return current.size < min ? current.size : min
+                }, this.currentData.size);
+
+                let smallestSizeForNoZoom = this.currentData.size * this.whenShouldScrollRatio;
+                if(smallestSize < smallestSizeForNoZoom){
+                    max = Math.round(smallestSizeForNoZoom/smallestSize);
+                }
+
+                return max;
             }
-        },
+        }
     }
 </script>
